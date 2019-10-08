@@ -12,10 +12,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.demo.entities.Project;
-import com.example.demo.entities.Task;;
+import com.example.demo.entities.Task;
+import com.example.demo.services.ProjectService;
+import com.example.demo.services.TaskService;;
 
 @Controller
 public class TaskController {
+	
+	@Autowired
+	TaskService taskService;
+	
+	@Autowired 
+	ProjectService projectService;
 	
 	@GetMapping("/tasks/create/{project_key}")
     public String PrepareCreate(Task task, Model model, @PathVariable String project_key) {
@@ -29,6 +37,9 @@ public class TaskController {
 			return "tasks_create";
 		}
 		//Save
+		Project project = projectService.getByKey(project_key);//Query by key
+		task.setProject(project); //Project relationship
+		taskService.save(task);//Save task
 		return "redirect:/project/tasks/"+project_key;
 	}
 	

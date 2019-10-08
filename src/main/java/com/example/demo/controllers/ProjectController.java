@@ -18,21 +18,21 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.entities.Project;
 import com.example.demo.entities.Task;
+import com.example.demo.services.ProjectService;
 
 @Controller
 public class ProjectController {
 
+	@Autowired
+	ProjectService projectService; //The type is imported from service layer using @Autowired annotation
 	
 	@GetMapping("/projects/")
 	public ModelAndView Index() {
 		ModelAndView mv = new ModelAndView("projects_list");
 		List<Project> projects = new ArrayList<Project>();
-		Project project = new Project();
-		//TODO: Hardcoded
-		project.setKey("P001");
-		project.setName("Proyecto DEMO 1");
-		projects.add(project);
-		mv.addObject("projects", projects);
+		//Call services 
+		projects = projectService.getAll();//***
+		mv.addObject("projects", projects); //***Databind to served view
 		return mv;
 	}
 	
@@ -47,22 +47,17 @@ public class ProjectController {
 			return "projects_create";
 		}
 		//Do save
+		projectService.save(project);//***
 		return "redirect:/projects/";
 	}
 	
 	@GetMapping("/project/tasks/{project_key}")
 	public ModelAndView ProjectTasks(@PathVariable String project_key) {
 		ModelAndView mv = new ModelAndView("tasks_list");
-		//query project
-		//TODO: Hardcoded
-		mv.addObject("project_key","P001");
+		Project project = projectService.getByKey(project_key);//***
+		mv.addObject("project_key",project_key);
 		List<Task> tasks = new ArrayList<Task>();
-		Task task = new Task();
-		//TODO: Hardcoded
-		task.setName("Task DEMO 1");
-		task.setId(100);
-		task.setIsCompleted(true);
-		tasks.add(task);
+		tasks = project.getTasks();//Lazy load ***
 
 		mv.addObject("tasks", tasks);
 		return mv;
